@@ -1,0 +1,30 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# IntelliJ IDEA files
+.idea/
+
+# Eclipse files
+.classpath
+.project
+.settings/
+
+# Gradle files
+build/
+.gradle/
+
+# Maven files
+target/
+
+# Your IDE's configuration files
+# Add lines for other IDEs if necessary
+
+# Operating System temporary files
+.DS_Store
+Thumbs.db
+
+# Config files containing sensitive information (like API keys)
+config.env
