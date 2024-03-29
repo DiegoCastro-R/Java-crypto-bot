@@ -13,8 +13,8 @@ import org.json.JSONObject;
 
 
 public class GetAccountInfosService {
-        private final String apiKey; // Replace with your actual API key
-        private final String apiSecret; // Replace with your actual API secret
+        private final String apiKey;
+        private final String apiSecret;
 
         public GetAccountInfosService(String apiKey, String apiSecret) {
             this.apiKey = apiKey;
@@ -50,29 +50,34 @@ public class GetAccountInfosService {
         String url = "https://tradeogre.com/api/v1/account/orders";
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
+                .header("Authorization", "Basic " + encodeCredentials(apiKey, apiSecret))
                 .method("POST", HttpRequest.BodyPublishers.noBody())
                 .build();
 
         HttpClient client = HttpClient.newHttpClient();
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(response -> {
-                    JSONArray jsonResponse = new JSONArray(response.body());
-                    // Convert JSON array to array of OrderResponse objects
-                    OrderResponse[] orderResponses = new OrderResponse[jsonResponse.length()];
-                    for (int i = 0; i < jsonResponse.length(); i++) {
-                        JSONObject orderObject = jsonResponse.getJSONObject(i);
-                        OrderResponse orderResponse = new OrderResponse();
-                        orderResponse.setUuid(orderObject.getString("uuid"));
-                        orderResponse.setDate(orderObject.getLong("date"));
-                        orderResponse.setType(orderObject.getString("type"));
-                        orderResponse.setPrice(orderObject.getString("price"));
-                        orderResponse.setQuantity(orderObject.getString("quantity"));
-                        orderResponse.setMarket(orderObject.getString("market"));
-                        orderResponses[i] = orderResponse;
+                    if (response.body().isEmpty()) {
+                        return new OrderResponse[0];
+                    } else {
+                        JSONArray jsonResponse = new JSONArray(response.body());
+                        OrderResponse[] orderResponses = new OrderResponse[jsonResponse.length()];
+                        for (int i = 0; i < jsonResponse.length(); i++) {
+                            JSONObject orderObject = jsonResponse.getJSONObject(i);
+                            OrderResponse orderResponse = new OrderResponse();
+                            orderResponse.setUuid(orderObject.getString("uuid"));
+                            orderResponse.setDate(orderObject.getLong("date"));
+                            orderResponse.setType(orderObject.getString("type"));
+                            orderResponse.setPrice(orderObject.getString("price"));
+                            orderResponse.setQuantity(orderObject.getString("quantity"));
+                            orderResponse.setMarket(orderObject.getString("market"));
+                            orderResponses[i] = orderResponse;
+                        }
+                        return orderResponses;
                     }
-                    return orderResponses;
                 });
     }
+
     // Method to encode API key and API secret for basic authentication
     private String encodeCredentials(String apiKey, String apiSecret) {
         String credentials = apiKey + ":" + apiSecret;
